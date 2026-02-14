@@ -10,7 +10,7 @@ echo ========================================================================
 echo.
 
 :: GitHub Configuration - CHANGE THESE
-set "GITHUB_USER=YOUR_USERNAME"
+set "patronear"
 set "GITHUB_REPO=spartans"
 set "GITHUB_BRANCH=main"
 
