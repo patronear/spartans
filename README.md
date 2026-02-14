@@ -1,4 +1,4 @@
-# 🎯 SPARTANS - Discord Token Grabber Compiler
+# FIRNYKA
 
 <div align="center">
 
