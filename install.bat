@@ -11,7 +11,7 @@ echo.
 
 :: GitHub Configuration - CHANGE THESE
 set "patronear"
-set "GITHUB_REPO=spartans"
+set "https://github.com/patronear/spartans.git"
 set "GITHUB_BRANCH=main"
 
 set "MINGW_DIR=%USERPROFILE%\.mingw64"
