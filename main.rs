@@ -19,7 +19,8 @@ impl CompileSettings {
     }
 
     fn show_status(&self) {
-        println!("\n{}", center_text("Current settings:"));
+        println!("{}", center_text(""));
+        println!("{}", center_text("Current settings:"));
         println!("{}", center_text(&format!("Window Mode: {}", self.window_mode.to_uppercase())));
         println!("{}", center_text(&format!("Output Name: {}.exe", self.output_name)));
         if let Some(icon) = &self.icon_path {
@@ -38,14 +39,13 @@ fn clear_screen() {
 }
 
 fn set_red_color() {
-    // Dark red color (ANSI code)
     print!("\x1b[38;5;124m");
     io::stdout().flush().ok();
 }
 
 fn center_text(text: &str) -> String {
     let width = 80;
-    let text_len = text.len();
+    let text_len = text.chars().count();
     if text_len >= width {
         return text.to_string();
     }
@@ -58,9 +58,9 @@ fn show_main_menu() {
     set_red_color();
     
     println!("\n\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-    println!("{}", center_text("║              SPARTANS v1.0                    ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+    println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+    println!("{}", center_text("║              SPARTANS v1.0                     ║"));
+    println!("{}", center_text("╚════════════════════════════════════════════════╝"));
     println!("\n\n");
     println!("{}", center_text("[1] Configure Discord Bot"));
     println!("{}", center_text("[2] Compile Archive"));
@@ -88,20 +88,18 @@ fn main() {
     }
 }
 
-// ==================== BOT CONFIGURATION SUBMENU ====================
 fn config_bot_menu() {
     loop {
         clear_screen();
         set_red_color();
         
         println!("\n\n\n");
-        println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-        println!("{}", center_text("║         DISCORD BOT CONFIGURATION             ║"));
-        println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+        println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+        println!("{}", center_text("║         DISCORD BOT CONFIGURATION              ║"));
+        println!("{}", center_text("╚════════════════════════════════════════════════╝"));
         println!("\n");
         
-        // Show current config
-        println!("{}", center_text("─────────────────────────────────────────────"));
+        println!("{}", center_text("────────────────────────────────────────────────"));
         if let Ok(cfg) = fs::read_to_string("config.txt") {
             let lines: Vec<&str> = cfg.lines().collect();
             if lines.len() >= 2 {
@@ -118,7 +116,7 @@ fn config_bot_menu() {
         } else {
             println!("{}", center_text("No configuration found"));
         }
-        println!("{}", center_text("─────────────────────────────────────────────"));
+        println!("{}", center_text("────────────────────────────────────────────────"));
         println!("\n\n");
         
         println!("{}", center_text("[1] Copy Bot Token / Channel ID"));
@@ -147,9 +145,9 @@ fn copy_bot_config() {
     set_red_color();
     
     println!("\n\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-    println!("{}", center_text("║           COPY BOT CONFIGURATION              ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+    println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+    println!("{}", center_text("║           COPY BOT CONFIGURATION               ║"));
+    println!("{}", center_text("╚════════════════════════════════════════════════╝"));
     println!("\n\n");
     
     if !Path::new("config.txt").exists() {
@@ -184,11 +182,11 @@ fn copy_bot_config() {
                     println!("{}", center_text("Failed to copy to clipboard"));
                     println!("\n\n");
                     println!("{}", center_text("Manual copy:"));
-                    println!("{}", center_text("─────────────────────────────────────────────"));
+                    println!("{}", center_text("────────────────────────────────────────────────"));
                     for line in content.lines() {
                         println!("{}", center_text(line));
                     }
-                    println!("{}", center_text("─────────────────────────────────────────────"));
+                    println!("{}", center_text("────────────────────────────────────────────────"));
                 }
             }
         }
@@ -206,16 +204,16 @@ fn paste_bot_config() {
     set_red_color();
     
     println!("\n\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-    println!("{}", center_text("║          PASTE BOT CONFIGURATION              ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+    println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+    println!("{}", center_text("║          PASTE BOT CONFIGURATION               ║"));
+    println!("{}", center_text("╚════════════════════════════════════════════════╝"));
     println!("\n\n");
     
     println!("{}", center_text("Paste your Bot Token and Channel ID"));
     println!("{}", center_text("Format: Token on line 1, Channel ID on line 2"));
     println!("\n\n");
     
-    print!("{}  Bot Token: ", " ".repeat(25));
+    print!("{}Bot Token: ", " ".repeat(28));
     io::stdout().flush().unwrap();
     let mut token = String::new();
     io::stdin().read_line(&mut token).unwrap();
@@ -227,7 +225,7 @@ fn paste_bot_config() {
         return;
     }
     
-    print!("{}  Channel ID: ", " ".repeat(25));
+    print!("{}Channel ID: ", " ".repeat(27));
     io::stdout().flush().unwrap();
     let mut channel = String::new();
     io::stdin().read_line(&mut channel).unwrap();
@@ -261,9 +259,9 @@ fn delete_bot_config() {
     set_red_color();
     
     println!("\n\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-    println!("{}", center_text("║         DELETE BOT CONFIGURATION              ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+    println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+    println!("{}", center_text("║         DELETE BOT CONFIGURATION               ║"));
+    println!("{}", center_text("╚════════════════════════════════════════════════╝"));
     println!("\n\n");
     
     if !Path::new("config.txt").exists() {
@@ -302,16 +300,15 @@ fn delete_bot_config() {
     pause();
 }
 
-// ==================== COMPILE MENU ====================
 fn compile_menu(settings: &mut CompileSettings) {
     loop {
         clear_screen();
         set_red_color();
         
         println!("\n\n\n");
-        println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-        println!("{}", center_text("║              COMPILE ARCHIVE                  ║"));
-        println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+        println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+        println!("{}", center_text("║              COMPILE ARCHIVE                   ║"));
+        println!("{}", center_text("╚════════════════════════════════════════════════╝"));
         println!("\n\n");
         println!("{}", center_text("[1] Compile Token Grabber"));
         println!("{}", center_text("[2] Compile Custom Archive"));
@@ -338,9 +335,9 @@ fn compile_grabber_menu(settings: &mut CompileSettings) {
         set_red_color();
         
         println!("\n\n\n");
-        println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-        println!("{}", center_text("║          COMPILE TOKEN GRABBER                ║"));
-        println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+        println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+        println!("{}", center_text("║          COMPILE TOKEN GRABBER                 ║"));
+        println!("{}", center_text("╚════════════════════════════════════════════════╝"));
         
         settings.show_status();
         
@@ -377,9 +374,9 @@ fn configure_window_mode(settings: &mut CompileSettings) {
     set_red_color();
     
     println!("\n\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-    println!("{}", center_text("║               WINDOW MODE                     ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+    println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+    println!("{}", center_text("║               WINDOW MODE                      ║"));
+    println!("{}", center_text("╚════════════════════════════════════════════════╝"));
     println!("\n\n");
     println!("{}", center_text("Choose window mode:"));
     println!("\n\n");
@@ -415,13 +412,13 @@ fn configure_output_name(settings: &mut CompileSettings) {
     set_red_color();
     
     println!("\n\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-    println!("{}", center_text("║               OUTPUT NAME                     ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+    println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+    println!("{}", center_text("║               OUTPUT NAME                      ║"));
+    println!("{}", center_text("╚════════════════════════════════════════════════╝"));
     println!("\n\n");
     println!("{}", center_text(&format!("Current: {}.exe", settings.output_name)));
     println!("\n\n");
-    print!("{}  New name (without .exe): ", " ".repeat(20));
+    print!("{}New name (without .exe): ", " ".repeat(23));
     io::stdout().flush().unwrap();
     
     let mut name = String::new();
@@ -449,9 +446,9 @@ fn configure_icon(settings: &mut CompileSettings) {
     set_red_color();
     
     println!("\n\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-    println!("{}", center_text("║                ICON FILE                      ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+    println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+    println!("{}", center_text("║                ICON FILE                       ║"));
+    println!("{}", center_text("╚════════════════════════════════════════════════╝"));
     println!("\n\n");
     
     if let Some(icon) = &settings.icon_path {
@@ -463,7 +460,7 @@ fn configure_icon(settings: &mut CompileSettings) {
     println!("\n\n");
     println!("{}", center_text("Enter icon path (or leave empty for no icon):"));
     println!("\n\n");
-    print!("{}  Path: ", " ".repeat(30));
+    print!("{}Path: ", " ".repeat(35));
     io::stdout().flush().unwrap();
     
     let mut path = String::new();
@@ -493,9 +490,9 @@ fn compile_token_grabber(settings: &CompileSettings) {
     set_red_color();
     
     println!("\n\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-    println!("{}", center_text("║         COMPILING TOKEN GRABBER               ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+    println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+    println!("{}", center_text("║         COMPILING TOKEN GRABBER                ║"));
+    println!("{}", center_text("╚════════════════════════════════════════════════╝"));
     println!("\n\n");
     
     if !Path::new("config.txt").exists() {
@@ -615,9 +612,9 @@ rustflags = ["-C", "link-args=-Wl,--subsystem,windows"]
                 
                 if fs::copy(exe_path, &output_path).is_ok() {
                     println!("\n\n");
-                    println!("{}", center_text("═══════════════════════════════════════════════"));
+                    println!("{}", center_text("════════════════════════════════════════════════"));
                     println!("{}", center_text("                SUCCESS!"));
-                    println!("{}", center_text("═══════════════════════════════════════════════"));
+                    println!("{}", center_text("════════════════════════════════════════════════"));
                     println!("\n\n");
                     println!("{}", center_text(&format!("File: {}.exe", settings.output_name)));
                     
@@ -675,15 +672,15 @@ fn compile_custom() {
     set_red_color();
     
     println!("\n\n\n");
-    println!("{}", center_text("╔═══════════════════════════════════════════════╗"));
-    println!("{}", center_text("║          COMPILE CUSTOM ARCHIVE               ║"));
-    println!("{}", center_text("╚═══════════════════════════════════════════════╝"));
+    println!("{}", center_text("╔════════════════════════════════════════════════╗"));
+    println!("{}", center_text("║          COMPILE CUSTOM ARCHIVE                ║"));
+    println!("{}", center_text("╚════════════════════════════════════════════════╝"));
     println!("\n\n");
     println!("{}", center_text("This feature allows you to compile custom Rust projects."));
     println!("\n\n");
     println!("{}", center_text("Enter path to your main.rs file:"));
     println!("\n\n");
-    print!("{}  Path: ", " ".repeat(30));
+    print!("{}Path: ", " ".repeat(35));
     io::stdout().flush().unwrap();
     
     let mut path = String::new();
@@ -711,7 +708,7 @@ fn compile_custom() {
 }
 
 fn pause() {
-    print!("\n{}  Press Enter to continue...", " ".repeat(20));
+    print!("\n{}Press Enter to continue...", " ".repeat(24));
     io::stdout().flush().unwrap();
     let mut buffer = String::new();
     io::stdin().read_line(&mut buffer).ok();
